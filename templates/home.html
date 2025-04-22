@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PortoXG - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="home-background">
+
+    <nav class="navbar">
+        <div class="logo">PortoXG</div>
+        <ul class="nav-links">
+            <li><a href="/">HOME</a></li>
+            <li><a href="/prediction">Prediction</a></li>
+        </ul>
+    </nav>
+
+    <div class="hero-content">
+        <h1>WELCOME TO PortoXG</h1>
+        <p class="intro">
+            Pasar saham memiliki potensi keuntungan besar, tetapi juga disertai dengan risiko tinggi. Optimasi Portofolio Saham hadir sebagai solusi berbasis kecerdasan buatan (AI) untuk membantu investor dalam mengambil keputusan investasi yang lebih cerdas dan strategis.
+        </p>
+
+        <div class="features">
+            <ul>
+                <li>✅ Prediksi Harga Saham Akurat dengan XGBoost untuk mengidentifikasi pola pergerakan harga.</li>
+                <li>✅ Optimasi Portofolio dengan Model Markowitz untuk menentukan alokasi investasi terbaik.</li>
+                <li>✅ Kemudahan Akses dengan antarmuka web yang intuitif dan user-friendly.</li>
+                <li>✅ Analisis Risiko & Return untuk memahami potensi keuntungan dan risiko.</li>
+                <li>✅ Visualisasi Data Interaktif untuk menampilkan alokasi dana dalam grafik dan tabel.</li>
+            </ul>
+        </div>
+
+        <div class="instructions">
+            <h3>Bagaimana Cara Kerjanya?</h3>
+            <ol>
+                <li>Masukkan Jumlah Dana Investasi – Pengguna menginput jumlah dana yang ingin diinvestasikan.</li>
+                <li>Prediksi Harga Saham – Sistem akan menggunakan XGBoost Regression untuk memprediksi harga saham.</li>
+                <li>Optimasi Portofolio – Algoritma Markowitz akan menentukan kombinasi saham terbaik.</li>
+                <li>Tinjau Hasil & Rekomendasi – Sistem menampilkan rekomendasi alokasi, grafik, dan insight.</li>
+            </ol>
+        </div>
+
+        <a href="/prediction" class="start-button">START</a>
+    </div>
+</body>
+</html>

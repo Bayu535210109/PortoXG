@@ -1,0 +1,142 @@
+body.home-background {
+    margin: 0;
+    padding: 0;
+    background: url('../static/img/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.nav-links a.active {
+    text-decoration: underline;
+}
+
+.hero-content {
+    padding-top: 100px;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 40px;
+    border-radius: 12px;
+}
+
+.features ul {
+    text-align: left;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.start-button {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 30px;
+    font-size: 18px;
+    background-color: #00c9a7;
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.start-button:hover {
+    background-color: #00a68a;
+}
+
+.prediction-container {
+    margin: 120px auto 60px;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 30px;
+    max-width: 900px;
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+}
+
+.form-section input {
+    padding: 10px;
+    font-size: 16px;
+    width: 60%;
+    border: none;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+.form-section button {
+    background-color: #28a745;
+    border: none;
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.tabel-hasil {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+    background: #222;
+    color: white;
+}
+
+.tabel-hasil th, .tabel-hasil td {
+    padding: 10px;
+    border: 1px solid #555;
+    text-align: left;
+}
+
+.grafik-section img {
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.result-section {
+    margin-top: 40px;
+    text-align: center;
+    color: white;
+}
+
+.result-table {
+    margin: 0 auto;
+    border-collapse: collapse;
+    color: white;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.result-table th, .result-table td {
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.pie-chart {
+    max-width: 500px;
+    margin-top: 20px;
+}

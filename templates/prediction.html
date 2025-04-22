@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PortoXG - Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="home-background">
+    <nav class="navbar">
+        <div class="logo">PortoXG</div>
+        <ul class="nav-links">
+            <li><a href="/">HOME</a></li>
+            <li><a href="/prediction" class="active">Prediction</a></li>
+        </ul>
+    </nav>
+
+    <div class="prediction-container">
+        <h2>Optimasi Portofolio Saham Teknologi</h2>
+        <form method="POST" class="form-section">
+            <label for="dana_investasi">Masukkan Dana Anda (IDR):</label>
+            <input type="number" name="dana_investasi" id="dana_investasi" placeholder="Contoh: 1000000" required>
+            <button type="submit">Tampilkan Alokasi</button>
+        </form>
+
+        {% if alokasi %}
+            <div class="result-section">
+                <h2>Hasil Alokasi Dana:</h2>
+                <table class="result-table">
+                {% for saham, jumlah in alokasi.items() %}
+                    <tr><td>{{ saham }}</td><td>{{ "{:,.2f}".format(jumlah) }}</td></tr>
+                {% endfor %}
+                </table>
+                <img src="{{ url_for('static', filename='grafik_pie.png') }}">
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
