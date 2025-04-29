@@ -1,128 +1,41 @@
-# === FILE: app.py ===
 from flask import Flask, render_template, request
-import yfinance as yf
+import joblib
 import pandas as pd
 import numpy as np
+import yfinance as yf
+from gurobipy import Model, GRB
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from xgboost import XGBRegressor
-from ta.trend import EMAIndicator, WMAIndicator, MACD
-from ta.momentum import RSIIndicator, ROCIndicator
-from ta.volatility import BollingerBands
-from datetime import datetime, timedelta
 import os
+from ta.momentum import RSIIndicator
+from ta.trend import EMAIndicator, MACD
+from ta.volatility import BollingerBands
+
 
 app = Flask(__name__)
 
-tickers = ['NVDA', 'AAPL', 'GOOGL', '005930.KS', '9988.HK', '000660.KQ',
-           'AMD', '0700.HK', 'TSLA', 'BABA', 'AMZN', 'INTC', 'MSFT']
-sp500_ticker = '^GSPC'
-start_date = (datetime.today() - timedelta(days=730)).strftime('%Y-%m-%d')
-end_date = datetime.today().strftime('%Y-%m-%d')
+# ===== LOAD MODEL, SCALER, dan FEATURES SEKALI =====
+models = {
+    "13saham": {
+        "model": joblib.load('models/model_xgb_global_13saham.pkl'),
+        "scaler": joblib.load('models/scaler_global_13saham.pkl')
+    },
+    "SONY_1810HK": {
+        "model": joblib.load('models/model_xgb_global_SONY_1810HK.pkl'),
+        "scaler": joblib.load('models/scaler_global_SONY_1810HK.pkl')
+    }
+}
+features = joblib.load('models/features_global.pkl')
 
-def process_stock(ticker):
-    try:
-        df = yf.download(ticker, start=start_date, end=end_date)
-        sp500 = yf.download(sp500_ticker, start=start_date, end=end_date)
+# List ticker sesuai model
+tickers_13saham = ['NVDA', 'AAPL', 'GOOGL', '005930.KS', '9988.HK', '000660.KQ',
+                   'AMD', '0700.HK', 'TSLA', 'ORCL', 'AMZN', 'INTC', 'MSFT']
+tickers_sony = ['SONY', '1810.HK']
 
-        if df.empty or len(df) < 100:
-            return None, None
-
-        df = df[['Open', 'High', 'Low', 'Close', 'Volume']].dropna()
-        sp500 = sp500[['Close']].rename(columns={'Close': 'SP500_Close'}).dropna()
-        df = df.join(sp500, how='inner')
-
-        df['Volume'] = np.log1p(df['Volume'])
-        df['Lag1'] = df['Close'].shift(1)
-        df['Lag2'] = df['Close'].shift(2)
-        df['Lag3'] = df['Close'].shift(3)
-        df['Lag4'] = df['Close'].shift(4)
-        df['MA5'] = df['Close'].rolling(5).mean()
-        df['MA10'] = df['Close'].rolling(10).mean()
-        df['MA20'] = df['Close'].rolling(20).mean()
-        df['MA50'] = df['Close'].rolling(50).mean()
-        df['EMA10'] = EMAIndicator(close=df['Close'].squeeze(), window=10).ema_indicator()
-        df['EMA20'] = EMAIndicator(close=df['Close'].squeeze(), window=20).ema_indicator()
-        df['EMA50'] = EMAIndicator(close=df['Close'].squeeze(), window=50).ema_indicator()
-        df['WMA10'] = WMAIndicator(close=df['Close'].squeeze(), window=10).wma()
-        df['WMA20'] = WMAIndicator(close=df['Close'].squeeze(), window=20).wma()
-        df['Momentum'] = df['Close'] - df['Close'].shift(4)
-        df['ROC'] = ROCIndicator(close=df['Close'].squeeze(), window=5).roc()
-        df['Volatility'] = df['Close'].pct_change().rolling(window=5).std()
-        df['High_Low'] = df['High'] - df['Low']
-        df['Close_Open'] = df['Close'] - df['Open']
-        df['Rolling_Max_5'] = df['Close'].rolling(5).max()
-        df['Rolling_Min_5'] = df['Close'].rolling(5).min()
-        df['Price_Change'] = df['Close'].diff()
-        df['3D_Trend'] = df['Close'] - df['Close'].shift(3)
-        df['Lag1_ratio'] = df['Lag1'] / df['Lag2']
-        df['Lag2_ratio'] = df['Lag3'] / df['Lag4']
-        df['MA5_vs_EMA10'] = df['MA5'] - df['EMA10']
-        df['MA5_to_MA20'] = df['MA5'] / df['MA20']
-        df['EMA10_to_EMA50'] = df['EMA10'] / df['EMA50']
-        df['WMA10_to_WMA20'] = df['WMA10'] / df['WMA20']
-        df['RSI'] = RSIIndicator(close=df['Close'].squeeze(), window=14).rsi()
-        macd = MACD(close=df['Close'].squeeze())
-        df['MACD'] = macd.macd()
-        df['MACD_signal'] = macd.macd_signal()
-        bb = BollingerBands(close=df['Close'].squeeze())
-        df['BB_high'] = bb.bollinger_hband()
-        df['BB_low'] = bb.bollinger_lband()
-        df['Year'] = df.index.year
-        df['Month'] = df.index.month
-        df['Day'] = df.index.day
-        df['DayOfWeek'] = df.index.dayofweek
-        df['Return'] = df['Close'].pct_change()
-        df['Target'] = df['Close'].shift(-1)
-        df.dropna(inplace=True)
-
-        features = [col for col in df.columns if col not in ['Target', 'Close']]
-        X = df[features].copy()
-        for col in X.columns:
-            if X[col].dtype == 'object':
-                X[col] = X[col].astype(float)
-        y = df['Target'].astype(float).squeeze().values.ravel()
-
-        model = XGBRegressor(n_estimators=100, random_state=42, verbosity=0)
-        model.fit(X, y)
-
-        pred_price = float(model.predict(X.iloc[[-1]]).item())
-        last_close = df['Close'].iloc[-1]
-        expected_return = (pred_price - last_close) / last_close
-
-        return expected_return, last_close
-
-    except Exception as e:
-        print(f"[ERROR] {ticker}: {e}")
-        return None, None
-
-def prediksi_dan_alokasi(dana):
-    hasil_return = {}
-    for tkr in tickers:
-        r, close = process_stock(tkr)
-        try:
-            if r is not None and float(r) > 0:
-                hasil_return[tkr] = float(r)
-        except Exception as e:
-            print(f"[ERROR Filter Return] {tkr}: {e}")
-            continue
-
-    if not hasil_return:
-        return {}
-
-    total = sum(hasil_return.values())
-    bobot = {tkr: r / total for tkr, r in hasil_return.items()}
-    alokasi = {tkr: dana * b for tkr, b in bobot.items()}
-
-    fig, ax = plt.subplots()
-    ax.pie(alokasi.values(), labels=alokasi.keys(), autopct='%1.1f%%')
-    ax.set_title("Alokasi Dana Prediksi")
-    os.makedirs("static", exist_ok=True)
-    plt.savefig("static/grafik_pie.png")
-    plt.close()
-
-    return alokasi
+# Folder simpan grafik
+if not os.path.exists('static'):
+    os.makedirs('static')
 
 @app.route('/')
 def home():
@@ -130,18 +43,109 @@ def home():
 
 @app.route('/prediction', methods=['GET', 'POST'])
 def prediction():
-    dana = None
-    alokasi = None
     if request.method == 'POST':
-        try:
-            dana = float(request.form.get('dana_investasi'))
-            alokasi = prediksi_dan_alokasi(dana)
-        except Exception as e:
-            return f"Terjadi error saat memproses: {e}"
-        print("Dana:", dana)
-        print("Alokasi:", alokasi)
+        dana = float(request.form.get('dana_investasi'))
 
-    return render_template('prediction.html', dana=dana, alokasi=alokasi)
+        # --- Predict semua saham ---
+        results = []
+        
+        # Prediksi saham dari model 13saham
+        for ticker in tickers_13saham:
+            harga_now, harga_pred = predict_ticker(ticker, "13saham")
+            expected_return = (harga_pred - harga_now) / harga_now
+            results.append({
+                'ticker': ticker,
+                'current_price': harga_now,
+                'predicted_price': harga_pred,
+                'expected_return': expected_return
+            })
+        
+        # Prediksi saham dari model SONY_1810HK
+        for ticker in tickers_sony:
+            harga_now, harga_pred = predict_ticker(ticker, "SONY_1810HK")
+            expected_return = (harga_pred - harga_now) / harga_now
+            results.append({
+                'ticker': ticker,
+                'current_price': harga_now,
+                'predicted_price': harga_pred,
+                'expected_return': expected_return
+            })
+
+        # Convert ke DataFrame
+        df_pred = pd.DataFrame(results)
+
+        # --- Optimasi Portofolio dengan Gurobi ---
+        model = Model("Portfolio Optimization")
+        model.setParam('OutputFlag', 0)
+
+        weights = {}
+        for idx, row in df_pred.iterrows():
+            weights[row['ticker']] = model.addVar(lb=0, ub=1, vtype=GRB.CONTINUOUS, name=row['ticker'])
+
+        model.setObjective(sum(weights[t] * r for t, r in zip(df_pred['ticker'], df_pred['expected_return'])), GRB.MAXIMIZE)
+        model.addConstr(sum(weights.values()) == 1)
+
+        model.optimize()
+
+        allocation = {t: weights[t].X for t in df_pred['ticker']}
+        df_pred['allocation_percent'] = [allocation[t] for t in df_pred['ticker']]
+        df_pred['allocation_nominal'] = df_pred['allocation_percent'] * dana
+
+        # --- Generate Pie Chart ---
+        plt.figure(figsize=(8, 8))
+        plt.pie(df_pred['allocation_percent'], labels=df_pred['ticker'], autopct='%1.1f%%')
+        plt.title('Distribusi Portofolio Saham')
+        plt.tight_layout()
+        pie_chart_path = os.path.join('static', 'portfolio_pie.png')
+        plt.savefig(pie_chart_path)
+        plt.close()
+
+        # Format nominal IDR
+        df_pred['allocation_nominal'] = df_pred['allocation_nominal'].apply(lambda x: f"IDR {x:,.0f}")
+        df_pred['current_price'] = df_pred['current_price'].apply(lambda x: f"{x:.2f}")
+        df_pred['predicted_price'] = df_pred['predicted_price'].apply(lambda x: f"{x:.2f}")
+        df_pred['expected_return'] = df_pred['expected_return'].apply(lambda x: f"{x*100:.2f}%")
+        df_pred = df_pred[['ticker', 'current_price', 'predicted_price', 'expected_return', 'allocation_nominal']]
+
+        return render_template('prediction.html', tables=[df_pred.to_html(classes='table table-bordered')], pie_chart='static/portfolio_pie.png')
+
+    return render_template('prediction.html')
+
+def predict_ticker(ticker, model_key):
+    model_info = models[model_key]
+    model = model_info['model']
+    scaler = model_info['scaler']
+
+    df = yf.download(ticker, period='60d')
+    if df.empty:
+        return 0, 0  # atau handle error lebih baik
+
+    df = df[['Open', 'High', 'Low', 'Close', 'Volume']].dropna()
+    df['Volume'] = np.log1p(df['Volume'])
+    df['Lag1'] = df['Close'].shift(1)
+    df['MA5'] = df['Close'].rolling(5).mean()
+    df['MA10'] = df['Close'].rolling(10).mean()
+    df['EMA10'] = EMAIndicator(close=df['Close'].squeeze(), window=10).ema_indicator()
+    df['RSI'] = RSIIndicator(close=df['Close'].squeeze(), window=14).rsi()
+    df['MACD'] = MACD(close=df['Close'].squeeze()).macd()
+    df['BB_high'] = BollingerBands(close=df['Close'].squeeze()).bollinger_hband()
+    df['BB_low'] = BollingerBands(close=df['Close'].squeeze()).bollinger_lband()
+    df['Return'] = df['Close'].pct_change()
+    df['RollingReturn5'] = df['Return'].rolling(5).mean()
+    df['RollingReturn10'] = df['Return'].rolling(10).mean()
+    df['Volatility5'] = df['Close'].pct_change().rolling(5).std()
+    df['Price_Level'] = pd.qcut(df['Close'].squeeze(), q=4, labels=False)
+
+
+    df.dropna(inplace=True)
+    X_latest = df[features].iloc[-1:]
+
+    X_scaled = scaler.transform(X_latest)
+    pred_delta = model.predict(X_scaled)[0]
+    last_close = df['Close'].iloc[-1]
+
+    pred_price = last_close + pred_delta
+    return last_close, pred_price
 
 if __name__ == '__main__':
     app.run(debug=True)
