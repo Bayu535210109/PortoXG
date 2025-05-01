@@ -17,30 +17,39 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="hero-content">
         <h1 class="text-center mb-4">Optimasi Portofolio Saham Teknologi</h1>
     
-        <form method="POST">
-            <div class="mb-3">
-                <label for="dana_investasi" class="form-label">Masukkan Dana Anda (IDR):</label>
-                <input type="number" step="any" class="form-control" name="dana_investasi" required>
-            </div>
+        <form method="POST" class="form-section">
+            <label for="dana_investasi" class="form-label">Masukkan Dana Anda (IDR):</label>
+            <input type="number" step="any" class="form-control" name="dana_investasi" required placeholder="Contoh: 10000000">
             <button type="submit" class="btn btn-primary w-100">Tampilkan Rekomendasi</button>
         </form>
-    
+
         {% if tables %}
-        <hr class="my-4">
-    
-        <h2 class="text-center mb-3">Hasil Alokasi Dana:</h2>
-        <div class="table-responsive">
-            {{ tables[0]|safe }}
-        </div>
-    
-        <h2 class="text-center mt-5 mb-3">Distribusi Portofolio:</h2>
-        <img src="{{ pie_chart }}" alt="Pie Chart Portfolio">
+            <hr class="my-4">
+
+            <h2 class="text-center mb-3">Hasil Alokasi Dana:</h2>
+            <div class="table-responsive">
+                {{ tables[0]|safe }}
+            </div>
+
+            <h2 class="text-center mt-5 mb-3">Distribusi Portofolio:</h2>
+            <div class="grafik-section text-center">
+                <img src="{{ pie_chart }}" alt="Pie Chart Portfolio" class="img-fluid">
+            </div>
+
+            <h2 class="text-center mt-5 mb-3">Prediksi Pergerakan Harga:</h2>
+            <div class="grafik-section text-center">
+                <img src="{{ prediksi_chart }}" alt="Prediksi Harga" class="img-fluid">
+            </div>
+
+        {% elif error_message %}
+            <div class="alert alert-danger mt-4" role="alert">
+                {{ error_message }}
+            </div>
         {% endif %}
-    </div>
-    
+    </div>    
 
 </body>
 </html>

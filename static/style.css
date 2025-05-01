@@ -45,21 +45,68 @@ body.home-background {
     font-weight: bold;
 }
 
-.hero-content {
-    padding-top: 120px;
-    text-align: center;
-    max-width: 900px;
+.home-hero {
+    padding-top: 50px 20px;
+    max-width: 1000px;
     margin: 0 auto;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 40px;
-    border-radius: 12px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.home-hero h1 {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.intro {
+    font-size: 18px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.features h3, .instructions h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
 }
 
 .features ul, .instructions ol {
     text-align: left;
-    margin: 20px auto;
+    font-size: 18px;
+    line-height: 1.8;
+    margin: 0 auto 40px;
     max-width: 800px;
+    padding-left: 40px; /* supaya bullet & number gak mepet */
 }
+
+.features ul li, .instructions ol li {
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 18px;
+}
+
+.features ul, .instructions ul {
+    text-align: left;
+    font-size: 18px;
+    line-height: 1.8;
+    margin: 0 auto 40px;
+    max-width: 800px;
+    padding-left: 40px;
+}
+
+.features ul li, .instructions ul li {
+    margin-bottom: 10px;
+    text-align: left;
+    font-size: 18px;
+}
+
 
 .start-button {
     display: inline-block;
@@ -81,6 +128,7 @@ body.home-background {
 }
 
 .prediction-container {
+    position: fixed;
     margin: 120px auto 60px;
     background: rgba(0, 0, 0, 0.75);
     padding: 30px;
@@ -142,4 +190,126 @@ body.home-background {
     width: 100%;
     margin-top: 20px;
     border-radius: 10px;
+}
+
+.alert {
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    background: rgba(255, 193, 7, 0.2); /* kuning lembut */
+    color: #ffc107;
+    border: 1px solid #ffc107;
+    text-align: center;
+}
+
+.alert-danger {
+    background: rgba(220, 53, 69, 0.2); /* merah lembut */
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.hero-content {
+    padding-top: 150px; /* supaya gak ketabrak navbar */
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.7); /* lebih gelap dikit biar elegan */
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    color: white;
+}
+
+.hero-content h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.hero-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.hero-content input[type="number"] {
+    padding: 12px;
+    font-size: 16px;
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+}
+
+.hero-content button {
+    background-color: #28a745;
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.hero-content button:hover {
+    background-color: #218838;
+}
+
+/* Form inputan */
+.form-section input[type="number"] {
+    background-color: #222; /* input box lebih gelap */
+    color: white;
+    border: 1px solid #555;
+}
+
+/* Placeholder dan border input */
+.form-section input[type="number"]::placeholder {
+    color: #ccc;
+}
+
+/* Button tampilkan rekomendasi */
+.form-section button {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+}
+
+/* Table hasil alokasi dana */
+.table-responsive table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: rgba(0,0,0,0.6); /* tetap semi transparan */
+    color: white;
+}
+
+.table-responsive th,
+.table-responsive td {
+    padding: 10px;
+    border: 1px solid #666;
+    text-align: center;
+}
+
+/* Heading Hasil Alokasi Dana dan Grafik */
+h2 {
+    color: white;
+}
+
+/* Grafik Pie dan Prediksi Harga */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.table-responsive tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
