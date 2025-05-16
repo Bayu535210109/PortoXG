@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediksi dan Optimasi - PortoXG</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -20,36 +21,124 @@
     <div class="hero-content">
         <h1 class="text-center mb-4">Optimasi Portofolio Saham Teknologi</h1>
     
-        <form method="POST" class="form-section">
-            <label for="dana_investasi" class="form-label">Masukkan Dana Anda (IDR):</label>
-            <input type="number" step="any" class="form-control" name="dana_investasi" required placeholder="Contoh: 10000000">
-            <button type="submit" class="btn btn-primary w-100">Tampilkan Rekomendasi</button>
-        </form>
+        <div class="form-section-horizontal">
+            <div class="form-group-horizontal">
+                <label for="dana_investasi" class="form-label-horizontal">Masukkan Dana Anda (IDR):</label>
+                <input type="number" step="any" name="dana_investasi" class="form-input-modern" placeholder="Contoh: 10000000" required>
+            </div>
+            <button type="submit" class="form-button-modern">Tampilkan Rekomendasi</button>
+        </div>
+
+
+
+        <script>
+            function showLoading() {
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Sedang memproses... <span class="loader"></span>';
+                return true;
+            }
+            function toggleDropdown() {
+                const list = document.getElementById("checkbox-list");
+                list.style.maxHeight = list.style.maxHeight ? null : list.scrollHeight + "px";
+            }
+            function toggleAllCheckboxes(source) {
+                const checkboxes = document.querySelectorAll('input[name="excluded_tickers"]');
+                checkboxes.forEach(cb => cb.checked = source.checked);
+            }
+            function toggleSelect() {
+                const list = document.getElementById("select-list");
+                list.style.maxHeight = list.style.maxHeight ? null : list.scrollHeight + "px";
+            }
+            function selectTicker(ticker) {
+                document.getElementById("selected_ticker").value = ticker;
+                document.getElementById("dropdown-label-ticker").innerText = ticker;
+                toggleSelect();
+            }
+            function resetCheckboxes() {
+                const checkboxes = document.querySelectorAll('input[name="excluded_tickers"]');
+                checkboxes.forEach(cb => cb.checked = false);
+                const selectAll = document.getElementById("select-all");
+                if (selectAll) selectAll.checked = false;
+            }
+
+        </script>
 
         {% if tables %}
             <hr class="my-4">
+            <h2 class="text-center mb-3">Hasil Alokasi Dana</h2>
+            <div class="table-responsive">{{ tables[0]|safe }}</div>
 
-            <h2 class="text-center mb-3">Hasil Alokasi Dana:</h2>
-            <div class="table-responsive">
-                {{ tables[0]|safe }}
-            </div>
+            <h2 class="text-center mt-5 mb-3">Reallocasi Dana: Hapus Saham dari Alokasi</h2>
 
-            <h2 class="text-center mt-5 mb-3">Distribusi Portofolio:</h2>
+            <!-- ✅ Form RESET terpisah -->
+            <form method="POST" action="/reallocation" style="text-align:center; margin-bottom: 20px;">
+                <input type="hidden" name="dana_investasi" value="{{ dana }}">
+                <input type="hidden" name="reset" value="1">
+                <button type="submit" class="btn-reset-checkbox">Reset Pilihan Saham</button>
+            </form>
+
+            <!-- ✅ Form utama reallocation -->
+            <form method="POST" action="/reallocation" class="form-section text-center" style="max-width: 600px; margin: 0 auto;">
+                <input type="hidden" name="dana_investasi" value="{{ dana }}">
+                <label class="form-label">Pilih Saham yang Ingin Dihapus dari Alokasi:</label>
+
+                <div class="dropdown-checkbox">
+                    <span class="dropdown-label" onclick="toggleDropdown()">Klik untuk Pilih Saham</span>
+                    <div class="checkbox-list" id="checkbox-list">
+                        <label class="checkbox-item">
+                            Pilih Semua
+                            <input type="checkbox" id="select-all" onclick="toggleAllCheckboxes(this)">
+                        </label>
+                        {% for ticker in tickers %}
+                            <label class="checkbox-item">
+                                {{ ticker }}
+                                <input type="checkbox" name="excluded_tickers" value="{{ ticker }}"
+                                    {% if excluded_tickers and ticker in excluded_tickers %}checked{% endif %}>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" name="reallocate" class="btn-secondary mt-3">Reallocate Dana</button>
+            </form>
+
+
+            <h2 class="text-center mt-5 mb-3">Distribusi Portofolio</h2>
             <div class="grafik-section text-center">
                 <img src="{{ pie_chart }}" alt="Pie Chart Portfolio" class="img-fluid">
             </div>
 
-            <h2 class="text-center mt-5 mb-3">Prediksi Pergerakan Harga:</h2>
             <div class="grafik-section text-center">
-                <img src="{{ prediksi_chart }}" alt="Prediksi Harga" class="img-fluid">
-            </div>
+                <h2 class="text-center mt-5 mb-3">Lihat Grafik Prediksi 3 Bulan Kedepan per Saham</h2>
+                <form method="POST" class="form-section text-center">
+                    <input type="hidden" name="dana_investasi" value="{{ dana }}">
+                    <input type="hidden" name="selected_ticker" id="selected_ticker" value="{{ selected_ticker }}">
+                    <label class="form-label">Pilih Saham:</label>
+                    <div class="dropdown-checkbox full-width" style="margin: 0 auto;">
+                        <span class="dropdown-label" id="dropdown-label-ticker" onclick="toggleSelect()">Klik untuk Pilih Saham</span>
+                        <div class="select-list-ticker" id="select-list">
+                            {% for ticker in tickers %}
+                                <div class="select-item-ticker" onclick="selectTicker('{{ ticker }}')">{{ ticker }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-secondary">Tampilkan Grafik Saham</button>
+                </form>
 
+                {% if chart_ticker %}
+                    <h2 class="text-center mt-5 mb-3">Grafik Prediksi 3 Bulan: {{ selected_ticker }}</h2>
+                    <div class="Predict-section">
+                        <img src="{{ chart_path }}" alt="Grafik Prediksi {{ chart_ticker }}" class="img-fluid">
+                    </div>
+                {% endif %}
+            </div>
         {% elif error_message %}
             <div class="alert alert-danger mt-4" role="alert">
                 {{ error_message }}
             </div>
         {% endif %}
-    </div>    
+    </div>
 
 </body>
 </html>

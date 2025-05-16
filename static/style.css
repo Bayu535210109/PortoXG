@@ -1,3 +1,7 @@
+/* ======================= */
+/* ===== GLOBAL STYLING == */
+/* ======================= */
+
 body.home-background {
     margin: 0;
     padding: 0;
@@ -7,11 +11,173 @@ body.home-background {
     color: white;
 }
 
+h2 {
+    color: white;
+    margin: 30px 0 15px;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.alert {
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid #ffc107;
+    text-align: center;
+}
+
+.alert-danger {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 3px solid white;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ======================= */
+/* ===== HOME PAGE ====== */
+/* ======================= */
+
+.home-navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: black;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    z-index: 100;
+}
+
+.home-logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-right: auto;
+}
+
+.home-nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.home-nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.home-nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.home-hero-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.65);
+    padding: 60px 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    margin-top: 120px;
+}
+
+.home-title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.home-intro {
+    font-size: 18px;
+    margin-bottom: 40px;
+    line-height: 1.7;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.home-features ul,
+.home-instructions ol {
+    text-align: left;
+    font-size: 18px;
+    line-height: 1.8;
+    margin: 0 auto 40px;
+    max-width: 800px;
+    padding-left: 40px;
+}
+
+.home-features ul li,
+.home-instructions ol li {
+    margin-bottom: 10px;
+}
+
+.home-instructions h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.home-start-button {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 36px;
+    font-size: 18px;
+    background: linear-gradient(90deg, #ffffff, #dddddd);
+    color: #000;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.home-start-button:hover {
+    background: linear-gradient(90deg, #00c9a7, #007c6e);
+    color: #fff;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 18px rgba(0, 201, 167, 0.4);
+}
+
+/* ============================ */
+/* ===== PREDICTION PAGE ===== */
+/* ============================ */
+
 .navbar {
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: black;
     display: flex;
     align-items: center;
     padding: 10px 20px;
@@ -22,7 +188,7 @@ body.home-background {
     font-size: 20px;
     font-weight: bold;
     color: white;
-    margin-right: auto; /* Biar logo tetap di kiri */
+    margin-right: auto;
 }
 
 .nav-center {
@@ -45,182 +211,15 @@ body.home-background {
     font-weight: bold;
 }
 
-.home-hero {
-    padding-top: 50px 20px;
-    max-width: 1000px;
-    margin: 0 auto;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.65);
-    padding: 50px;
-    border-radius: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-    color: white;
-}
-
-.home-hero h1 {
-    font-size: 40px;
-    font-weight: bold;
-    margin-bottom: 30px;
-}
-
-.intro {
-    font-size: 18px;
-    margin-bottom: 40px;
-    line-height: 1.7;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.features h3, .instructions h3 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-.features ul, .instructions ol {
-    text-align: left;
-    font-size: 18px;
-    line-height: 1.8;
-    margin: 0 auto 40px;
-    max-width: 800px;
-    padding-left: 40px; /* supaya bullet & number gak mepet */
-}
-
-.features ul li, .instructions ol li {
-    margin-bottom: 10px;
-    text-align: left;
-    font-size: 18px;
-}
-
-.features ul, .instructions ul {
-    text-align: left;
-    font-size: 18px;
-    line-height: 1.8;
-    margin: 0 auto 40px;
-    max-width: 800px;
-    padding-left: 40px;
-}
-
-.features ul li, .instructions ul li {
-    margin-bottom: 10px;
-    text-align: left;
-    font-size: 18px;
-}
-
-
-.start-button {
-    display: inline-block;
-    margin-top: 30px;
-    padding: 10px 30px;
-    font-size: 18px;
-    background-color: #ffffff;
-    color: #000;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.start-button:hover {
-    background-color: #00c9a7;
-    color: #fff;
-    transform: scale(1.05);
-}
-
-.prediction-container {
-    position: fixed;
-    margin: 120px auto 60px;
-    background: rgba(0, 0, 0, 0.75);
-    padding: 30px;
-    max-width: 900px;
-    border-radius: 12px;
-    text-align: center;
-    color: white;
-}
-
-.form-section {
-    margin-bottom: 30px;
-}
-
-.form-section input {
-    padding: 10px;
-    font-size: 16px;
-    width: 60%;
-    border: none;
-    border-radius: 5px;
-    margin: 10px 0;
-}
-
-.form-section button {
-    background-color: #28a745;
-    border: none;
-    color: white;
-    font-size: 16px;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.form-section button:hover {
-    background-color: #218838;
-}
-
-.hasil-section {
-    margin-top: 40px;
-    text-align: left;
-}
-
-.tabel-hasil {
-    width: 100%;
-    margin-bottom: 30px;
-    border-collapse: collapse;
-    background: #222;
-    color: white;
-}
-
-.tabel-hasil th,
-.tabel-hasil td {
-    padding: 10px;
-    border: 1px solid #555;
-    text-align: left;
-}
-
-.grafik-section img,
-.tabel-prediksi img {
-    width: 100%;
-    margin-top: 20px;
-    border-radius: 10px;
-}
-
-.alert {
-    margin: 20px auto;
-    max-width: 800px;
-    padding: 15px 20px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    background: rgba(255, 193, 7, 0.2); /* kuning lembut */
-    color: #ffc107;
-    border: 1px solid #ffc107;
-    text-align: center;
-}
-
-.alert-danger {
-    background: rgba(220, 53, 69, 0.2); /* merah lembut */
-    color: #dc3545;
-    border: 1px solid #dc3545;
-}
-
 .hero-content {
-    padding-top: 150px; /* supaya gak ketabrak navbar */
+    padding-top: 150px;
     text-align: center;
-    max-width: 600px;
+    max-width: 1200px;
     margin: 0 auto;
-    background: rgba(0, 0, 0, 0.7); /* lebih gelap dikit biar elegan */
+    background: rgba(0, 0, 0, 0.7);
     padding: 40px;
     border-radius: 16px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    color: white;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
 }
 
 .hero-content h1 {
@@ -229,65 +228,65 @@ body.home-background {
     margin-bottom: 30px;
 }
 
-.hero-content form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.form-section {
+    margin-bottom: 30px;
 }
 
-.hero-content input[type="number"] {
-    padding: 12px;
+.form-section input[type="number"] {
+    background-color: #1a1a1a;
+    color: white;
+    border: 1px solid #555;
+    padding: 12px 16px;
     font-size: 16px;
-    width: 100%;
-    border: none;
+    width: 500px;
     border-radius: 8px;
+    margin-bottom: 20px;
 }
 
+.form-section button,
 .hero-content button {
     background-color: #28a745;
     border: none;
     color: white;
-    font-size: 18px;
-    padding: 12px;
-    cursor: pointer;
+    font-size: 16px;
+    padding: 14px 24px;
+    width: 500px;
     border-radius: 8px;
     transition: background-color 0.3s ease;
+    cursor: pointer;
+    font-weight: bold;
 }
 
+.form-section button:hover,
 .hero-content button:hover {
     background-color: #218838;
 }
 
-/* Form inputan */
-.form-section input[type="number"] {
-    background-color: #222; /* input box lebih gelap */
-    color: white;
-    border: 1px solid #555;
-}
-
-/* Placeholder dan border input */
-.form-section input[type="number"]::placeholder {
-    color: #ccc;
-}
-
-/* Button tampilkan rekomendasi */
-.form-section button {
-    background-color: #28a745;
+.btn-secondary {
+    background-color: #218838;
     color: white;
     font-weight: bold;
     border: none;
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 12px;
+    padding: 14px 30px;
     cursor: pointer;
+    font-size: 17px;
+    box-shadow: 0 4px 12px rgba(0, 201, 167, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 20px;
 }
 
-/* Table hasil alokasi dana */
+.btn-secondary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(0, 201, 167, 0.5);
+}
+
 .table-responsive table {
     width: 100%;
-    border-collapse: collapse;
     margin-top: 20px;
-    background-color: rgba(0,0,0,0.6); /* tetap semi transparan */
+    background-color: rgba(0, 0, 0, 0.6);
     color: white;
+    border-collapse: collapse;
 }
 
 .table-responsive th,
@@ -297,19 +296,138 @@ body.home-background {
     text-align: center;
 }
 
-/* Heading Hasil Alokasi Dana dan Grafik */
-h2 {
+.table-responsive tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-checkbox {
+    width: 100%;
+    margin: 20px auto;
+    text-align: left;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.dropdown-label {
+    background-color: #222;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #555;
+    font-weight: bold;
+    text-align: center;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.checkbox-list,
+.select-list-ticker {
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 0;
+}
+
+.checkbox-item,
+.select-item-ticker {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #444;
+    font-size: 16px;
+    color: white;
+    box-sizing: border-box;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin: 0;
+    margin-right: 8px;
+}
+
+.select-item-ticker:hover,
+.checkbox-item:hover {
+    background-color: #444;
+}
+
+.dropdown-checkbox.full-width .dropdown-label,
+.dropdown-checkbox.full-width .select-list-ticker {
+    width: 100%;
+}
+
+.btn-reset-checkbox {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-reset-checkbox:hover {
+    background-color: #0056b3;
+}
+
+.form-section-horizontal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 40px;
+}
+
+.form-group-horizontal {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-label-horizontal {
+    font-size: 16px;
+    font-weight: 600;
     color: white;
 }
 
-/* Grafik Pie dan Prediksi Harga */
-.img-fluid {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    margin-top: 20px;
+.form-input-modern {
+    width: 250px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: #1f1f1f;
+    color: white;
+    outline: none;
+    box-shadow: 0 0 6px rgba(0, 255, 255, 0.2);
 }
 
-.table-responsive tr:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.form-input-modern::placeholder {
+    color: #aaaaaa;
+}
+
+.form-button-modern {
+    background-color: #00c853;
+    color: white;
+    font-weight: 700;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 200, 83, 0.4);
+}
+
+.form-button-modern:hover {
+    background-color: #00b248;
 }
