@@ -42,13 +42,13 @@ def load_model_by_ticker(ticker):
 
 # === Daftar Ticker ===
 tickers_13saham = ['NVDA', 'AAPL', 'GOOGL', '005930.KS', '000660.KQ',
-                   'AMD', 'TSLA', 'ORCL', 'AMZN', 'INTC', 'MSFT','9988.HK']
-tickers_xiaomi = ['1810.HK', '0700.HK']
+                   'AMD', 'TSLA', 'ORCL', 'AMZN', 'INTC', 'MSFT','9988.HK', '0700.HK']
+tickers_xiaomi = ['1810.HK']
 tickers_sony = ['SONY']
 
 sp500_ticker = '^GSPC'
 start_date = '2023-01-01'
-end_date = '2025-04-25'
+end_date = datetime.today().strftime('%Y-%m-%d')
 
 @app.route('/')
 def home():
@@ -95,7 +95,8 @@ def prediction():
                 gagal.append(ticker)
                 continue
             save_prediction_chart(ticker, df, future_preds)
-            expected_return = (harga_pred_3bulan - harga_now) / harga_now
+            raw_return = (harga_pred_3bulan - harga_now) / harga_now
+            expected_return = max(min(raw_return, 1.0), -0.5)
             results.append({
                 'ticker': ticker,
                 'current_price': harga_now,
@@ -110,7 +111,8 @@ def prediction():
                 gagal.append(ticker)
                 continue
             save_prediction_chart(ticker, df, future_preds)
-            expected_return = (harga_pred_3bulan - harga_now) / harga_now
+            raw_return = (harga_pred_3bulan - harga_now) / harga_now
+            expected_return = max(min(raw_return, 1.0), -0.5)
             results.append({
                 'ticker': ticker,
                 'current_price': harga_now,
@@ -125,7 +127,8 @@ def prediction():
                 gagal.append(ticker)
                 continue
             save_prediction_chart(ticker, df, future_preds)
-            expected_return = (harga_pred_3bulan - harga_now) / harga_now
+            raw_return = (harga_pred_3bulan - harga_now) / harga_now
+            expected_return = max(min(raw_return, 1.0), -0.5)
             results.append({
                 'ticker': ticker,
                 'current_price': harga_now,
@@ -313,7 +316,7 @@ def predict_ticker_with_model(ticker, model_type='per_ticker'):
 
             future_price = final_pred_ensemble
             future_predictions.append(future_price)
-
+            
             new_row = X_latest.copy()
             new_row['Lag4'] = new_row['Lag3']
             new_row['Lag3'] = new_row['Lag2']
@@ -732,4 +735,4 @@ def format_df_for_display(df):
                'Return (%)', 'Alokasi (IDR)', 'Estimasi Profit (IDR)']]
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)

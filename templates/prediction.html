@@ -21,15 +21,13 @@
     <div class="hero-content">
         <h1 class="text-center mb-4">Optimasi Portofolio Saham Teknologi</h1>
     
-        <div class="form-section-horizontal">
+        <form method="POST" action="/prediction" class="form-section-horizontal" onsubmit="return showLoading()">
             <div class="form-group-horizontal">
                 <label for="dana_investasi" class="form-label-horizontal">Masukkan Dana Anda (IDR):</label>
                 <input type="number" step="any" name="dana_investasi" class="form-input-modern" placeholder="Contoh: 10000000" required>
             </div>
-            <button type="submit" class="form-button-modern">Tampilkan Rekomendasi</button>
-        </div>
-
-
+            <button type="submit" id="submit-btn" class="form-button-modern">Tampilkan Rekomendasi</button>
+        </form>
 
         <script>
             function showLoading() {
