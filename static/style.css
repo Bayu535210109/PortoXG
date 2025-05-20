@@ -17,9 +17,9 @@ h2 {
 }
 
 .img-fluid {
-    max-width: 50%;
+    max-width: 100%;
     height: auto;
-    border-radius: 30px;
+    border-radius: 10px;
     margin-top: 20px;
 }
 

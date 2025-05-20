@@ -45,7 +45,6 @@ tickers_13saham = ['NVDA', 'AAPL', 'GOOGL', '005930.KS', '000660.KQ',
                    'AMD', 'TSLA', 'ORCL', 'AMZN', 'INTC', 'MSFT','9988.HK', '0700.HK']
 tickers_xiaomi = ['1810.HK']
 tickers_sony = ['SONY']
-
 sp500_ticker = '^GSPC'
 start_date = '2023-01-01'
 end_date = datetime.today().strftime('%Y-%m-%d')
