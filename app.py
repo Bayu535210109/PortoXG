@@ -83,7 +83,8 @@ def prediction():
                 'chart_ticker': selected_ticker if chart_path else None,
             }
             return render_template('prediction.html', **context)
-
+        
+        results = sorted(results, key=lambda x: x['expected_return'], reverse=True)
         dana = dana_input
         results = []
         gagal = []
@@ -204,6 +205,7 @@ def reallocation():
         return render_template('prediction.html', error_message="Semua saham dikecualikan.")
 
     # Simpan hasil terbaru
+    results = sorted(results, key=lambda x: x['expected_return'], reverse=True)
     session['last_results'] = results
     session['last_dana'] = dana
 
@@ -636,8 +638,12 @@ def optimize_portfolio(results, dana):
     model.setParam('OutputFlag', 0)
 
     # === Batasan Alokasi Diversifikasi ===
-    min_weight = 0.05  # 5% minimum
-    max_weight = 0.4   # 40% maksimum
+    if len(df) >= 3:
+        min_weight = 0.05
+        max_weight = 0.4
+    else:
+        min_weight = 0.01
+        max_weight = 1.0
 
     weights = {
         row['ticker']: model.addVar(lb=min_weight, ub=max_weight, vtype=GRB.CONTINUOUS)
@@ -656,10 +662,6 @@ def optimize_portfolio(results, dana):
             for t in df['ticker']
         ]
 
-    df['allocation_percent'] = [
-        weights[t].X if t in weights and hasattr(weights[t], 'X') else 0
-        for t in df['ticker']
-    ]
     df['allocation_nominal'] = df['allocation_percent'] * dana
     df['expected_profit'] = df['allocation_nominal'] * df['expected_return']
     return df
