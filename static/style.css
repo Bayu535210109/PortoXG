@@ -431,3 +431,24 @@ h2 {
 .form-button-modern:hover {
     background-color: #00b248;
 }
+
+.btn-sort-return {
+    background-color: #FFA500;
+    color: black;
+    border: none;
+    padding: 10px 25px;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-sort-return:hover {
+    background-color: #ffbf47;
+}
+
+.btn-sort-return.active-sort {
+    background-color: #1a73e8;
+    color: white;
+}

@@ -56,11 +56,12 @@ def home():
 @app.route('/prediction', methods=['GET', 'POST'])
 def prediction():
     if request.method == 'POST':
-        dana_input = float(request.form.get('dana_investasi'))
+        dana_input_raw = request.form.get('dana_investasi')
+        dana_input = float(dana_input_raw) if dana_input_raw else 0
         selected_ticker = request.form.get('selected_ticker')
 
-        # === Jika hanya memilih saham (tanpa submit dana baru) ===
-        if not dana_input and selected_ticker and 'last_results' in session and 'last_dana' in session:
+        # ✅ Jika hanya memilih saham (tanpa submit dana baru)
+        if selected_ticker and 'last_results' in session and 'last_dana' in session:
             df_alloc = optimize_portfolio(session['last_results'], session['last_dana'])
             pie_chart_path = generate_pie_chart(df_alloc)
             df_view = format_df_for_display(df_alloc)
@@ -68,7 +69,7 @@ def prediction():
             chart_path = f"static/chart_13saham/prediksi_chart_{selected_ticker}.png"
             if not os.path.exists(chart_path):
                 chart_path = None
-            
+
             context = {
                 'tables': [df_view.to_html(classes='table table-bordered', index=False, escape=False)],
                 'pie_chart': pie_chart_path,
@@ -76,12 +77,11 @@ def prediction():
                 'gagal_predict': [],
                 'dana': session['last_dana'],
                 'selected_ticker': selected_ticker,
-                'excluded_tickers': []
+                'excluded_tickers': [],
+                'chart_path': chart_path,
+                'chart_paths': chart_path,
+                'chart_ticker': selected_ticker if chart_path else None,
             }
-            if chart_path:
-                context['chart_path'] = chart_path
-                context['chart_paths'] = chart_path
-                context['chart_ticker'] = selected_ticker
             return render_template('prediction.html', **context)
 
         dana = dana_input
@@ -647,7 +647,19 @@ def optimize_portfolio(results, dana):
     model.addConstr(sum(weights.values()) == 1)
     model.optimize()
 
-    df['allocation_percent'] = [weights[t].X for t in df['ticker']]
+    if model.status != GRB.OPTIMAL:
+        print("[WARNING] Optimasi gagal atau tidak optimal. Status:", model.status)
+        df['allocation_percent'] = 0
+    else:
+        df['allocation_percent'] = [
+            weights[t].X if t in weights and hasattr(weights[t], 'X') else 0
+            for t in df['ticker']
+        ]
+
+    df['allocation_percent'] = [
+        weights[t].X if t in weights and hasattr(weights[t], 'X') else 0
+        for t in df['ticker']
+    ]
     df['allocation_nominal'] = df['allocation_percent'] * dana
     df['expected_profit'] = df['allocation_nominal'] * df['expected_return']
     return df

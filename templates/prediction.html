@@ -26,14 +26,16 @@
                 <label for="dana_investasi" class="form-label-horizontal">Masukkan Dana Anda (IDR):</label>
                 <input type="number" step="any" name="dana_investasi" class="form-input-modern" placeholder="Contoh: 10000000" required>
             </div>
-            <button type="submit" id="submit-btn" class="form-button-modern">Tampilkan Rekomendasi</button>
+            <button type="submit" id="submit-graphic" class="form-button-modern">Tampilkan Grafik Saham</button>
         </form>
 
         <script>
             function showLoading() {
-                const btn = document.getElementById('submit-btn');
-                btn.disabled = true;
-                btn.innerHTML = '⏳ Sedang memproses... <span class="loader"></span>';
+                const btns = document.querySelectorAll('button[type="submit"]');
+                btns.forEach(btn => {
+                    btn.disabled = true;
+                    btn.innerHTML = '⏳ Sedang memproses... <span class="loader"></span>';
+                });
                 return true;
             }
             function toggleDropdown() {
@@ -109,7 +111,7 @@
 
             <div class="grafik-section text-center">
                 <h2 class="text-center mt-5 mb-3">Lihat Grafik Prediksi 3 Bulan Kedepan per Saham</h2>
-                <form method="POST" class="form-section text-center">
+                <form method="POST" action="/prediction" class="form-section text-center">
                     <input type="hidden" name="dana_investasi" value="{{ dana }}">
                     <input type="hidden" name="selected_ticker" id="selected_ticker" value="{{ selected_ticker }}">
                     <label class="form-label">Pilih Saham:</label>
