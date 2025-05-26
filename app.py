@@ -42,7 +42,7 @@ def load_model_by_ticker(ticker):
 
 # === Daftar Ticker ===
 tickers_13saham = ['NVDA', 'AAPL', 'GOOGL', '005930.KS', '000660.KQ',
-                   'AMD', 'TSLA', 'ORCL', 'AMZN', 'INTC', 'MSFT','9988.HK', '0700.HK']
+                   'AMD', 'TSLA', 'ORCL', 'AMZN', 'INTC', 'MSFT','9988.HK', '0700.HK','GOTO.JK']
 tickers_xiaomi = ['1810.HK']
 tickers_sony = ['SONY']
 sp500_ticker = '^GSPC'
@@ -52,6 +52,16 @@ end_date = datetime.today().strftime('%Y-%m-%d')
 @app.route('/')
 def home():
     return render_template('home.html')
+
+def evaluate_portfolio(df):
+    expected_return = (df['allocation_percent'] * df['expected_return']).sum()
+    realized_return = ((df['predicted_price_3mo'] - df['current_price']) / df['current_price'] * df['allocation_percent']).sum()
+    mape = np.mean(np.abs((df['predicted_price_3mo'] - df['current_price']) / df['current_price']))
+    return {
+        'expected_return': expected_return,
+        'realized_return': realized_return,
+        'mape': mape
+    }
 
 @app.route('/prediction', methods=['GET', 'POST'])
 def prediction():
@@ -65,6 +75,8 @@ def prediction():
             df_alloc = optimize_portfolio(session['last_results'], session['last_dana'])
             pie_chart_path = generate_pie_chart(df_alloc)
             df_view = format_df_for_display(df_alloc)
+
+            evaluasi = evaluate_portfolio(pd.DataFrame(session['last_results']))
 
             chart_path = f"static/chart_13saham/prediksi_chart_{selected_ticker}.png"
             if not os.path.exists(chart_path):
@@ -81,10 +93,10 @@ def prediction():
                 'chart_path': chart_path,
                 'chart_paths': chart_path,
                 'chart_ticker': selected_ticker if chart_path else None,
+                'evaluasi': evaluasi
             }
             return render_template('prediction.html', **context)
         
-        results = sorted(results, key=lambda x: x['expected_return'], reverse=True)
         dana = dana_input
         results = []
         gagal = []
@@ -137,15 +149,35 @@ def prediction():
                 'expected_return': expected_return,
             })
 
+        results = sorted(results, key=lambda x: x['expected_return'], reverse=True)
+        results_positive = [r for r in results if r['expected_return'] > 0]
+
+        # 🔧 Hitung alokasi hanya untuk saham dengan return positif
+        df_alloc = optimize_portfolio(results_positive, dana)
+
+        # 🧠 Gabungkan hasil alokasi kembali ke semua saham
+        df_alloc_dict = df_alloc.set_index('ticker')[['allocation_percent', 'allocation_nominal', 'expected_profit']].to_dict('index')
+
+        
+
+        for r in results:
+            if r['ticker'] in df_alloc_dict:
+                r.update(df_alloc_dict[r['ticker']])
+            else:
+                r['allocation_percent'] = 0
+                r['allocation_nominal'] = 0
+                r['expected_profit'] = 0
+                
+        evaluasi = evaluate_portfolio(pd.DataFrame(results))
         session['last_results'] = results
         session['last_dana'] = dana
 
         if 'initial_results' not in session:
             session['initial_results'] = results.copy()
 
-        df_alloc = optimize_portfolio(results, dana)
         pie_chart_path = generate_pie_chart(df_alloc)
-        df_view = format_df_for_display(df_alloc)
+        df_all = pd.DataFrame(results)
+        df_view = format_df_for_display(df_all)
 
         # Cek jika ada ticker dipilih untuk tampilkan grafiknya
         chart_path = f"static/chart_13saham/prediksi_chart_{selected_ticker}.png" if selected_ticker else None
@@ -159,7 +191,8 @@ def prediction():
             'gagal_predict': gagal,
             'dana': dana,
             'selected_ticker': selected_ticker,
-            'excluded_tickers': []
+            'excluded_tickers': [],
+            'evaluasi': evaluasi
         }
         if chart_path:
             context['chart_path'] = chart_path
@@ -176,11 +209,13 @@ def prediction():
             chart_paths=chart_path,
             chart_ticker=selected_ticker if chart_path else None,
             chart_path=chart_path,
-            excluded_tickers=[]
+            excluded_tickers=[],
+            evaluasi=evaluasi
         )
 
 
-    return render_template('prediction.html')
+    return render_template('prediction.html', evaluasi=None)
+
 
 @app.route('/reallocation', methods=['POST'])
 def reallocation():
@@ -211,8 +246,21 @@ def reallocation():
 
     # Hitung alokasi ulang
     df_alloc = optimize_portfolio(results, dana)
-    pie_chart_path = generate_pie_chart(df_alloc)
-    df_view = format_df_for_display(df_alloc)
+
+    # Gabungkan hasil alokasi ke dalam results
+    df_alloc_dict = df_alloc.set_index('ticker')[['allocation_percent', 'allocation_nominal', 'expected_profit']].to_dict('index')
+    for r in results:
+        if r['ticker'] in df_alloc_dict:
+            r.update(df_alloc_dict[r['ticker']])
+        else:
+            r['allocation_percent'] = 0
+            r['allocation_nominal'] = 0
+            r['expected_profit'] = 0
+
+    # ⬅️ FORMAT BARU setelah update results
+    df_view = format_df_for_display(pd.DataFrame(results))
+    pie_chart_path = generate_pie_chart(pd.DataFrame(results))
+    evaluasi = evaluate_portfolio(pd.DataFrame(results))
 
     return render_template('prediction.html',
         tables=[df_view.to_html(classes='table table-bordered', index=False, escape=False)],
@@ -222,8 +270,10 @@ def reallocation():
         dana=dana,
         selected_ticker=selected_ticker,
         chart_ticker=None,
-        excluded_tickers=excluded
+        excluded_tickers=excluded,
+        evaluasi=evaluasi
     )
+
 
 
 def predict_ticker_with_model(ticker, model_type='per_ticker'):
@@ -634,47 +684,92 @@ def generate_features_sony(df):
 
 def optimize_portfolio(results, dana):
     df = pd.DataFrame(results)
-    model = Model("Portfolio Optimization")
+    df = df[df['expected_return'] > 0].copy()
+
+    if df.empty:
+        df['allocation_percent'] = 0
+        df['allocation_nominal'] = 0
+        df['expected_profit'] = 0
+        return df
+
+    tickers = df['ticker'].tolist()
+    expected_returns = df['expected_return'].values
+
+    # Ambil return historis
+    returns_hist = []
+    for ticker in tickers:
+        data = yf.download(ticker, period="6mo")['Close'].pct_change().dropna()
+        returns_hist.append(data)
+
+    returns_df = pd.concat(returns_hist, axis=1)
+    returns_df.columns = tickers
+    returns_df.dropna(inplace=True)
+    cov_matrix = returns_df.cov().values
+
+    model = Model("Markowitz_PropReturn")
     model.setParam('OutputFlag', 0)
 
-    # === Batasan Alokasi Diversifikasi ===
-    if len(df) >= 3:
-        min_weight = 0.05
-        max_weight = 0.4
-    else:
-        min_weight = 0.01
-        max_weight = 1.0
-
+    # Variabel bobot portofolio
     weights = {
-        row['ticker']: model.addVar(lb=min_weight, ub=max_weight, vtype=GRB.CONTINUOUS)
-        for _, row in df.iterrows()
+        t: model.addVar(lb=0.0, ub=1.0, vtype=GRB.CONTINUOUS)
+        for t in tickers
     }
-    model.setObjective(sum(weights[t] * r for t, r in zip(df['ticker'], df['expected_return'])), GRB.MAXIMIZE)
+
+    # Fungsi objektif: maksimalkan expected return
+    model.setObjective(
+        sum(weights[t] * r for t, r in zip(tickers, expected_returns)),
+        GRB.MAXIMIZE
+    )
+
+    # Total alokasi = 100%
     model.addConstr(sum(weights.values()) == 1)
+
+    # Batas risiko maksimum
+    max_variance = 0.01
+    portfolio_variance = sum(
+        weights[tickers[i]] * weights[tickers[j]] * cov_matrix[i][j]
+        for i in range(len(tickers))
+        for j in range(len(tickers))
+    )
+    model.addConstr(portfolio_variance <= max_variance)
+
+    # Tambah constraint agar alokasi proporsional terhadap return (±50%)
+    total_return = df['expected_return'].sum()
+    for t, r in zip(tickers, df['expected_return']):
+        prop_weight = r / total_return
+        model.addConstr(weights[t] >= prop_weight * 0.5)
+        model.addConstr(weights[t] <= prop_weight * 1.5)
+
+    # Solve
     model.optimize()
 
-    if model.status != GRB.OPTIMAL:
-        print("[WARNING] Optimasi gagal atau tidak optimal. Status:", model.status)
-        df['allocation_percent'] = 0
+    if model.status == GRB.OPTIMAL:
+        df['allocation_percent'] = [weights[t].X for t in tickers]
     else:
-        df['allocation_percent'] = [
-            weights[t].X if t in weights and hasattr(weights[t], 'X') else 0
-            for t in df['ticker']
-        ]
+        print("[WARNING] Gurobi gagal optimasi.")
+        df['allocation_percent'] = 0
 
     df['allocation_nominal'] = df['allocation_percent'] * dana
     df['expected_profit'] = df['allocation_nominal'] * df['expected_return']
     return df
 
+
 def generate_pie_chart(df):
+    # Hapus saham dengan alokasi 0
+    df_filtered = df[df['allocation_percent'] > 0].copy()
+
+    if df_filtered.empty:
+        return None  # Gak usah gambar chart kalau kosong
+
     plt.figure(figsize=(8, 8))
-    plt.pie(df['allocation_percent'], labels=df['ticker'], autopct='%1.1f%%')
+    plt.pie(df_filtered['allocation_percent'], labels=df_filtered['ticker'], autopct='%1.1f%%')
     plt.title('Distribusi Portofolio Saham')
     plt.tight_layout()
     pie_chart_path = os.path.join('static', 'portfolio_pie.png')
     plt.savefig(pie_chart_path)
     plt.close()
     return pie_chart_path
+
 
 def save_prediction_chart(ticker, df, future_predictions):
     os.makedirs('static/chart_13saham', exist_ok=True)
@@ -746,6 +841,49 @@ def format_df_for_display(df):
 
     return df[['Saham', 'Harga Saat Ini', 'Prediksi Besok', 'Prediksi 3 Bulan',
                'Return (%)', 'Alokasi (IDR)', 'Estimasi Profit (IDR)']]
+
+@app.route('/evaluasi', methods=['GET'])
+def evaluasi_portofolio():
+    if 'last_results' not in session or 'last_dana' not in session:
+        return "Tidak ada hasil prediksi dan alokasi sebelumnya untuk dievaluasi."
+
+    results = session['last_results']
+    dana = session['last_dana']
+
+    tickers = [r['ticker'] for r in results if r['allocation_percent'] > 0]
+    start_eval = (datetime.today() - timedelta(days=90)).strftime('%Y-%m-%d')
+    end_eval = datetime.today().strftime('%Y-%m-%d')
+
+    realized_returns = {}
+    for t in tickers:
+        try:
+            data = yf.download(t, start=start_eval, end=end_eval)
+            if len(data) < 2:
+                continue
+            p_awal = data['Close'].iloc[0]
+            p_akhir = data['Close'].iloc[-1]
+            realized_returns[t] = (p_akhir - p_awal) / p_awal
+        except:
+            realized_returns[t] = 0.0
+
+    total_realized_return = 0
+    total_expected_return = 0
+    for r in results:
+        if r['ticker'] in realized_returns:
+            w = r['allocation_percent']
+            total_realized_return += w * realized_returns[r['ticker']]
+            total_expected_return += w * r['expected_return']
+
+    mape = np.mean([
+        abs((r['expected_return'] - realized_returns.get(r['ticker'], 0)) / (realized_returns.get(r['ticker'], 1e-6)))
+        for r in results if r['allocation_percent'] > 0
+    ])
+
+    output = f"<h3>Evaluasi Portofolio</h3>"
+    output += f"<p>Total Realized Return: {total_realized_return:.4f} ({total_realized_return*100:.2f}%)</p>"
+    output += f"<p>Total Expected Return: {total_expected_return:.4f} ({total_expected_return*100:.2f}%)</p>"
+    output += f"<p>MAPE: {mape:.4f} ({mape*100:.2f}%)</p>"
+    return output
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -26,7 +26,7 @@
                 <label for="dana_investasi" class="form-label-horizontal">Masukkan Dana Anda (IDR):</label>
                 <input type="number" step="any" name="dana_investasi" class="form-input-modern" placeholder="Contoh: 10000000" required>
             </div>
-            <button type="submit" id="submit-graphic" class="form-button-modern">Tampilkan Grafik Saham</button>
+            <button type="submit" id="submit-graphic" class="form-button-modern">Tampilkan Alokasi Dana</button>
         </form>
 
         <script>
@@ -67,6 +67,15 @@
         {% if tables %}
             <hr class="my-4">
             <h2 class="text-center mb-3">Hasil Alokasi Dana</h2>
+            {% if evaluasi %}
+            <div class="text-center mt-3 mb-4">
+                <h3>Evaluasi Optimasi</h3>
+                <p>Total Expected Return: {{ evaluasi.expected_return | round(4) }} ({{ (evaluasi.expected_return * 100) | round(2) }}%)</p>
+                <p>Total Realized Return: {{ evaluasi.realized_return | round(4) }} ({{ (evaluasi.realized_return * 100) | round(2) }}%)</p>
+                <p>MAPE: {{ evaluasi.mape | round(4) }} ({{ (evaluasi.mape * 100) | round(2) }}%)</p>
+            </div>
+            {% endif %}
+
             <div class="table-responsive">{{ tables[0]|safe }}</div>
 
             <h2 class="text-center mt-5 mb-3">Reallocasi Dana: Hapus Saham dari Alokasi</h2>
