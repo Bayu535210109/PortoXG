@@ -765,7 +765,7 @@ def generate_pie_chart(df):
     plt.pie(df_filtered['allocation_percent'], labels=df_filtered['ticker'], autopct='%1.1f%%')
     plt.title('Distribusi Portofolio Saham')
     plt.tight_layout()
-    pie_chart_path = os.path.join('static', 'portfolio_pie.png')
+    pie_chart_path = os.path.join('static/img', 'portfolio_pie.png')
     plt.savefig(pie_chart_path)
     plt.close()
     return pie_chart_path
