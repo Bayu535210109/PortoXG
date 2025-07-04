@@ -66,17 +66,17 @@
 
         {% if tables %}
             <hr class="my-4">
-            <h2 class="text-center mb-3">Hasil Alokasi Dana</h2>
-            {% if evaluasi %}
-            <div class="text-center mt-3 mb-4">
-                <h3>Evaluasi Optimasi</h3>
-                <p>Total Expected Return: {{ evaluasi.expected_return | round(4) }} ({{ (evaluasi.expected_return * 100) | round(2) }}%)</p>
-                <p>Total Realized Return: {{ evaluasi.realized_return | round(4) }} ({{ (evaluasi.realized_return * 100) | round(2) }}%)</p>
-                <p>MAPE: {{ evaluasi.mape | round(4) }} ({{ (evaluasi.mape * 100) | round(2) }}%)</p>
-            </div>
-            {% endif %}
-
+            <h2 class="text-center mb-3">Hasil Alokasi Dana</h2>          
             <div class="table-responsive">{{ tables[0]|safe }}</div>
+            {% if evaluasi %}
+                <div class="text-center mt-3 mb-4">
+                    <h3>Evaluasi Optimasi</h3>
+                    <p>Estimasi Total Profit: IDR {{ total_profit | int | string | replace(",", ".") }}</p>
+                    <!-- <p>Portfolio Variance (σ²): {{ (evaluasi.risk * 100) | round(4) }}%</p> -->
+                    <p>Sharpe Ratio: {{ evaluasi.sharpe_ratio | round(4) }}</p>
+                    <p>Jumlah Saham Dialokasikan: {{ evaluasi.num_assets }}</p>
+                </div>
+            {% endif %}
 
             <h2 class="text-center mt-5 mb-3">Reallocasi Dana: Hapus Saham dari Alokasi</h2>
 
